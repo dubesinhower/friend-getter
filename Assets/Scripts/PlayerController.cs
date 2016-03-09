@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D Rigid;
     Animator Animator;
     bool Grounded = false;
-    float GroundRadius = 0.2f; 
+    float GroundRadius = 0.1f; 
 
     void Awake()
     {
