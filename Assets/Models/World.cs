@@ -1,71 +1,88 @@
-﻿using UnityEngine;
+﻿//=======================================================================
+// Copyright Martin "quill18" Glaude 2015.
+//		http://quill18.com
+//=======================================================================
+
+using System;
+using UnityEngine;
 using System.Collections;
+using Random = UnityEngine.Random;
 
-public class World  {
-    Tile[,] tiles;
-    int width;
+public class World {
 
-    public int Width
-    {
-        get
-        {
-            return width;
-        }
-    }
+	// A two-dimensional array to hold our tile data.
+    private Tile[,] _tiles;
 
-    int height;
-    
-    public int Height
-    {
-        get
-        {
-            return height;
-        }
-    }
+	// The tile width of the world.
+	public int Width { get; protected set; }
 
-    public World(int width = 100, int height = 100)
-    {
-        this.width = width;
-        this.height = height;
-        tiles = new Tile[width,height];
+	// The tile height of the world
+	public int Height { get; protected set; }
 
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                tiles[x, y] = new Tile(this, x, y);
-            }            
-        }
+    private Action<Tile> _cbTileChanged;
 
-        Debug.Log("World created with " + (width * height) + " tiles.");
-    }
+	/// <summary>
+	/// Initializes a new instance of the <see cref="World"/> class.
+	/// </summary>
+	/// <param name="width">Width in tiles.</param>
+	/// <param name="height">Height in tiles.</param>
+	public World(int width = 100, int height = 100) {
+		Width = width;
+		Height = height;
 
-    public void RandomizeTiles()
-    {
-        Debug.Log("Randomize tiles.");
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if(Random.Range(0, 2) == 0)
-                {
-                    tiles[x, y].Type = Tile.TileType.Empty;
-                }
-                else
-                {
-                    tiles[x, y].Type = Tile.TileType.Ground;
-                }                
+		_tiles = new Tile[Width,Height];
+
+		for (int x = 0; x < Width; x++) {
+			for (int y = 0; y < Height; y++) {
+				_tiles[x,y] = new Tile(this, x, y);
+                _tiles[x, y].RegisterTileChanged( OnTileChanged );
             }
-        }
+		}
+
+		Debug.Log ("World created with " + (Width*Height) + " tiles.");
+	}
+
+	/// <summary>
+	/// A function for testing out the system
+	/// </summary>
+	public void RandomizeTiles() {
+		Debug.Log ("RandomizeTiles");
+		for (int x = 0; x < Width; x++) {
+			for (int y = 0; y < Height; y++) {
+				_tiles[x,y].Type = Random.Range(0, 2) == 0 ? TileType.Empty : TileType.Ground;
+            }
+		}
+	}
+
+	/// <summary>
+	/// Gets the tile data at x and y.
+	/// </summary>
+	/// <returns>The <see cref="Tile"/>.</returns>
+	/// <param name="x">The x coordinate.</param>
+	/// <param name="y">The y coordinate.</param>
+	public Tile GetTileAt(int x, int y) {
+		if( x > Width || x < 0 || y > Height || y < 0) {
+			Debug.LogError("Tile ("+x+","+y+") is out of range.");
+			return null;
+		}
+		return _tiles[x, y];
+	}
+
+    public void RegisterTileChanged(Action<Tile> callbackFunc)
+    {
+        _cbTileChanged += callbackFunc;
     }
 
-    public Tile GetTileAt(int x, int y)
+    public void UnregisterTileChanged(Action<Tile> callbackFunc)
     {
-        if(x > width || x < 0 || y > height || y < 0)
-        {
-            Debug.LogError("Tile (" + x + "," + y + ") is out of range.");
-            return null;
-        }
-        return tiles[x, y];
+        _cbTileChanged -= callbackFunc;
+    }
+
+    void OnTileChanged(Tile t)
+    {
+        if (_cbTileChanged == null)
+            return;
+
+        _cbTileChanged(t);
     }
 }
