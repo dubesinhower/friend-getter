@@ -6,20 +6,20 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum WorldMode { Edit, Test }
+//public enum WorldMode { Build, Test }
 
 public class WorldController : MonoBehaviour {
 
 	public static WorldController Instance { get; protected set; }
 
-    public WorldMode Mode { get; protected set; } 
+    //public WorldMode Mode { get; protected set; } 
 
 	// The world and tile data
 	public World World { get; protected set; }
 
 	// Use this for initialization
 	void OnEnable () {
-        Mode = WorldMode.Edit;
+        //Mode = WorldMode.Edit;
 
         if (Instance != null) {
 			Debug.LogError("There should never be two world controllers.");

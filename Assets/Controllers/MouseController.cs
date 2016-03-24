@@ -6,8 +6,6 @@ public class MouseController : MonoBehaviour {
 
 	public GameObject circleCursorPrefab;
 
-    TileType buildModeTile = TileType.Ground;
-
 	// The world-position of the mouse last frame.
 	Vector3 lastFramePosition;
 	Vector3 currFramePosition;
@@ -26,32 +24,15 @@ public class MouseController : MonoBehaviour {
 		currFramePosition = Camera.main.ScreenToWorldPoint( Input.mousePosition );
 		currFramePosition.z = 0;
 
-		//UpdateCursor();
-	    if (WorldController.Instance.Mode == WorldMode.Edit)
-	    {
-            UpdateDragging();
-            UpdateCameraMovement();
-        }
+		//UpdateCursor(); 
+        UpdateDragging();
+        UpdateCameraMovement();
 
 		// Save the mouse position from this frame
 		// We don't use currFramePosition because we may have moved the camera.
 		lastFramePosition = Camera.main.ScreenToWorldPoint( Input.mousePosition );
 		lastFramePosition.z = 0;
 	}
-
-	//void UpdateCursor() {
-	//	// Update the circle cursor position
-	//	Tile tileUnderMouse = WorldController.Instance.GetTileAtWorldCoord(currFramePosition);
-	//	if(tileUnderMouse != null) {
-	//		circleCursor.SetActive(true);
-	//		Vector3 cursorPosition = new Vector3(tileUnderMouse.X, tileUnderMouse.Y, 0);
-	//		circleCursor.transform.position = cursorPosition;
-	//	}
-	//	else {
-	//		// Mouse is outside of the valid tile space, so hide the cursor.
-	//		circleCursor.SetActive(false);
-	//	}
-	//}
 
 	void UpdateDragging() {
 
@@ -112,13 +93,16 @@ public class MouseController : MonoBehaviour {
         }
 
 		// End Drag
-		if( Input.GetMouseButtonUp(0) ) {			
+		if( Input.GetMouseButtonUp(0) )
+		{
+		    BuildModeController bmc = GameObject.FindObjectOfType<BuildModeController>();
+
 			// Loop through all the tiles
 			for (int x = start_x; x <= end_x; x++) {
 				for (int y = start_y; y <= end_y; y++) {
 					Tile t = WorldController.Instance.World.GetTileAt(x, y);
 					if(t != null) {
-						t.Type = buildModeTile;
+						bmc.DoBuild(t);
 					}
 				}
 			}
@@ -136,17 +120,5 @@ public class MouseController : MonoBehaviour {
 
         Camera.main.orthographicSize -= Camera.main.orthographicSize * Input.GetAxis("Mouse ScrollWheel");
         Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, 3f, 25f);
-
     }
-
-    public void SetModeGround()
-    {
-        buildModeTile = TileType.Ground;
-    }
-
-    public void SetModeErase()
-    {
-        buildModeTile = TileType.Empty;
-    }
-
 }

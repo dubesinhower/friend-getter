@@ -26,7 +26,7 @@ public class World {
 	/// </summary>
 	/// <param name="width">Width in tiles.</param>
 	/// <param name="height">Height in tiles.</param>
-	public World(int width = 100, int height = 100) {
+	public World(int width = 100, int height = 20) {
 		Width = width;
 		Height = height;
 
@@ -34,8 +34,8 @@ public class World {
 
 		for (int x = 0; x < Width; x++) {
 			for (int y = 0; y < Height; y++) {
-				_tiles[x,y] = new Tile(this, x, y);
-                _tiles[x, y].RegisterTileChanged( OnTileChanged );
+				_tiles[x,y] = new Tile(x, y);
+                _tiles[x, y].RegisterTileChanged(OnTileChanged);
             }
 		}
 
@@ -61,7 +61,7 @@ public class World {
 	/// <param name="x">The x coordinate.</param>
 	/// <param name="y">The y coordinate.</param>
 	public Tile GetTileAt(int x, int y) {
-		if( x > Width || x < 0 || y > Height || y < 0) {
+		if( x >= Width || x < 0 || y >= Height || y < 0) {
 			Debug.LogError("Tile ("+x+","+y+") is out of range.");
 			return null;
 		}
